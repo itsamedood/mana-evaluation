@@ -1,0 +1,19 @@
+{
+  "name": "rpgbot",
+  "module": "src/main.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "start": "bun run src/main.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.26.4",
+    "glob": "^13.0.6"
+  }
+}
