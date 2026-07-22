@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import Bot from "../bot";
-import Command from "../types/command";
+import Bot from "../../bot";
+import Command from "../../types/command";
 
 class PingCommand extends Command {
   constructor() {
@@ -9,7 +9,7 @@ class PingCommand extends Command {
         name: "ping",
         description: "Pong! Used to check latency."
       },
-      category: "SETTINGS"
+      category: "CONFIG"
     });
   }
 

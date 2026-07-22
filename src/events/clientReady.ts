@@ -11,10 +11,9 @@ export default class ClientReadyEvent extends Event {
     client.user.setPresence({
       status: "idle",
       activities: [{
-        name: "foodies...",
-        type: ActivityType.Watching,
-        state: "OOO A FLY *lunge*",
-        // url: "https://itsamedood.github.io"
+        name: "Waiting for someone to evaluate...",
+        type: ActivityType.Custom,
+        url: "https://itsamedood.github.io"
       }]
     });
 

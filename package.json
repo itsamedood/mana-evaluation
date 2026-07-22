@@ -10,7 +10,7 @@
     "typescript": "^5"
   },
   "scripts": {
-    "start": "bun run src/main.ts"
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
     "discord.js": "^14.26.4",

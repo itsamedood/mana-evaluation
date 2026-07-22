@@ -83,4 +83,13 @@ export default class Bot extends Client {
   public async registerButtons(): Promise<void> { }
   public async registerMenus(): Promise<void> { }
   public async registerModals(): Promise<void> { }
+
+  /**
+   * Checks if the bot is in the given guild.
+   * @param guildId ID of the guild to check for.
+   * @returns `boolean`
+   */
+  public async inGuild(guildId: string): Promise<boolean> {
+    return await this.guilds.fetch(guildId).then(()=>true).catch(()=>false);
+  }
 }

@@ -2,14 +2,14 @@ import { Message } from "discord.js";
 import Bot from "../../bot";
 import Command from "../../types/command";
 
-class ForceEvalCommand extends Command {
+class RankCommand extends Command {
   constructor() {
     super({
       data: {
-        name: "forceEval",
-        description: "Forces an evaluation on the user."
+        name: "rank",
+        description: "Play around with ranks."
       },
-      category: "SETTINGS"
+      category: "NL"
     });
   }
 
@@ -19,5 +19,5 @@ class ForceEvalCommand extends Command {
 }
 
 export default {
-  command: new ForceEvalCommand()
+  command: new RankCommand()
 }

@@ -14,10 +14,6 @@ import Event from "../types/event";
 import Bot from "../bot";
 
 export default class InteractionCreateEvent extends Event {
-  private readonly specialIds = [
-    "743679520107790416" // Me.
-  ];
-
   constructor() {
     super({ name: "interactionCreate" });
   }
@@ -33,10 +29,6 @@ export default class InteractionCreateEvent extends Event {
 
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
-
-      if ((command.data.dev && this.specialIds.includes(interaction.user.id))) {
-        return await interaction.reply({ content: "You can't use this bruh." });
-      }
 
       try {
         // @ts-ignore
