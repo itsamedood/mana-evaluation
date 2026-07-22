@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import Bot from "../../bot";
 import Command from "../../types/command";
 
@@ -13,9 +13,7 @@ class SetupCommand extends Command {
     });
   }
 
-  public async execute(message: Message, client: Bot) {
-    console.log(message.content);
-  }
+  public async execute(interaction: ChatInputCommandInteraction, client: Bot) { }
 }
 
 export default {
