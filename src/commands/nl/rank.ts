@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, Role, type APIRole } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, GuildMember, Role, type APIRole } from "discord.js";
 import Bot from "../../bot";
 import Command, { OptionType } from "../../types/command";
 
@@ -88,6 +88,19 @@ class RankCommand extends Command {
 								required: true
 							}
 						]
+					},
+					{
+						name: "massign",
+						type: OptionType.SUB_COMMAND,
+						description: "Mass assigns every unranked member a rank.",
+						options: [
+							{
+								name: "force",
+								type: OptionType.BOOLEAN,
+								description: "Force reassign all members or just the unranked.",
+								required: false
+							}
+						]
 					}
         ]
       },
@@ -95,7 +108,7 @@ class RankCommand extends Command {
     });
   }
 
-	private async _getRandomRank(): Promise<string> {
+	private _getRandomRank(): string {
 		const roll = Math.random() * 100; // 0-100.
 		let accumulated = 0;
 
@@ -119,12 +132,20 @@ class RankCommand extends Command {
 	private async _setRank(member: GuildMember, role: Role | APIRole): Promise<void> {
 		const currentRank = this._checkForExistingRank(member);
 
-		if (currentRank) await member?.roles.remove(currentRank.id);
-		await member?.roles.add(role.id);
+		// Avoids unnecessary calls where we remove (for ex.) E-Rank and then add...
+		// if (currentRank)
+		// if (currentRank?.id != role.id) await member?.roles.add(role.id);
+		if (currentRank) {
+			if (currentRank.id != role.id) {
+				await member?.roles.remove(currentRank.id);
+				await member?.roles.add(role.id);
+			}
+		} else await member?.roles.add(role.id);
 	}
 
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
     const modifier = interaction.options.getSubcommand(true);
+		const roles = await interaction.guild?.roles.fetch();
 
 		switch (modifier) {
 			case "reroll": {
@@ -134,14 +155,13 @@ class RankCommand extends Command {
 				const member = await interaction.guild?.members.fetch({ user: user.id, force: true });
 				if (!member) return;
 
-				const chosen = await this._getRandomRank();
+				const chosen = this._getRandomRank()
 				const ogRank = this._checkForExistingRank(member);
-				const roles = await interaction.guild?.roles.fetch();
-				const cRole = await roles?.find(r => r.name == chosen);
+				let cRole = roles?.find(r => r.name == chosen);
 
-				if (!cRole) return;
+				if (!cRole) cRole = roles?.find(r => r.name == "E-Rank")!;
 				if (!member?.roles.cache.has(cRole.id))
-					this._setRank(member, cRole);
+					await this._setRank(member, cRole);
 
 				return await interaction.reply({ content: `Rerolled <@${user.id}>'s rank!\n<@&${ogRank?.id}> => <@&${cRole.id}>` });
 				break; // Redundant.
@@ -152,11 +172,11 @@ class RankCommand extends Command {
 				const role = interaction.options.getRole("rank", true);
 
 				if (this._roleNames.includes(role.name)) {
-					await interaction.guild?.roles.fetch(); // Fetch this shit so shit stops blowing up. Frickin' Discord (&/| DJS).
+					// await interaction.guild?.roles.fetch(); // Fetch this shit so shit stops blowing up. Frickin' Discord (&/| DJS).
 
 					const member = await interaction.guild?.members.fetch({ user: user.id, force: true });
 					if (!member) return;
-					this._setRank(member, role);
+					await this._setRank(member, role);
 
 					return await interaction.reply({ content: `Assigned <@${user.id}> <@&${role.id}>.`, flags: "Ephemeral" });
 				} else
@@ -171,6 +191,36 @@ class RankCommand extends Command {
 				return await interaction.reply({ content: `Role: <@&${role.id}>\nChance: **${chance}%**`, flags: "Ephemeral" });
 				break; // Redundant.
 			}
+
+			case "massign":
+				const force = interaction.options.getBoolean("force", false) ?? false; // If not set, default to false.
+
+				await interaction.reply({ content: `Started mass assign! This could take a while...` });
+
+				const members = await interaction.guild?.members.fetch();
+				if (!members) return;
+
+				// Filter for those whose existing rank returns undefined.
+				const unranked = !force ? members.filter(m => !this._checkForExistingRank(m)) : members;
+
+				for (const member of unranked.values()) {
+					const chosen = this._getRandomRank();
+					const role = roles?.find(r => r.name == chosen);
+					if (!role) continue;
+
+					await this._setRank(member, role);
+					await new Promise(r => setTimeout(r, 1e3)); // Wait 1 second (1000ms) to avoid rate limit.
+				}
+
+				const finishedText = `Finished! Assigned ranks to **${unranked.size}** members!`;
+
+				try {
+					return await interaction.editReply({ content: finishedText });
+				} catch {
+					if (interaction.channel && "send" in interaction.channel)
+						return await interaction.channel.send({ content: finishedText });
+				}
+				break; // Redundant.
 
 			case "list":
 				return await interaction.reply({ content: "List deez nutz.", flags: "Ephemeral" });
