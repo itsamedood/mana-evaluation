@@ -23,12 +23,15 @@ export default class InteractionCreateEvent extends Event {
     ModalSubmitInteraction | ChatInputCommandInteraction) {
     /* Application command interactions. */
     if (interaction.type == InteractionType.ApplicationCommand) {
-      if (interaction.channel?.type == ChannelType.DM) {
+      if (interaction.channel?.type == ChannelType.DM)
         return await interaction.reply({ content: "You can't slide into my DMs bruh." });
-      }
 
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
+
+			// If category is NL and member is NOT and admin or is NOT the owner, deny usage.
+			if (command.category == "NL" && !(interaction.memberPermissions?.has("Administrator") || interaction.guild?.ownerId == interaction.member?.user.id))
+				return await interaction.reply({ content: "You can't use this.", flags: "Ephemeral" });
 
       try {
         // @ts-ignore

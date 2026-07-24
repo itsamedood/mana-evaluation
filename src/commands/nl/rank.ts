@@ -3,6 +3,8 @@ import Bot from "../../bot";
 import Command, { OptionType } from "../../types/command";
 
 class RankCommand extends Command {
+	private _roleNames = ["E-Rank", "D-Rank", "C-Rank", "B-Rank", "A-Rank", "S-Rank", "National Level"];
+
   constructor() {
     super({
       data: {
@@ -32,6 +34,12 @@ class RankCommand extends Command {
 								description: "User to set the rank of.",
 								type: OptionType.USER,
 								required: true
+							},
+							{
+								name: "rank",
+								description: "The rank to assign.",
+								type: OptionType.ROLE,
+								required: true
 							}
 						]
           },
@@ -39,6 +47,25 @@ class RankCommand extends Command {
 						name: "list",
 						type: OptionType.SUB_COMMAND,
 						description: "Lists the total of users per rank."
+					},
+					{
+						name: "odds",
+						type: OptionType.SUB_COMMAND,
+						description: "Set the odds of the rank.",
+						options: [
+							{
+								name: "rank",
+								type: OptionType.ROLE,
+								description: "The rank to modify the odds of.",
+								required: true
+							},
+							{
+								name: "chance",
+								type:  OptionType.NUMBER,
+								description: "%-Odds for the rank. >0 & <=100.",
+								required: true
+							}
+						]
 					}
         ]
       },
@@ -48,21 +75,42 @@ class RankCommand extends Command {
 
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
     const modifier = interaction.options.getSubcommand(true);
-    const user = interaction.options.getUser("user", true);
 
-    // await interaction.reply({ content: `Subcommand: **${modifier}**\nUser: <@${user.id}>` });
 		switch (modifier) {
-			case "reroll":
-				// ...
-				break;
+			case "reroll": {
+				const user = interaction.options.getUser("user", true);
+				return await interaction.reply({ content: `User: <@${user.id}>\nTo reroll!` });
+				break; // Redundant.
+			}
 
-			case "set":
-				// ...
-				break;
+			case "set": {
+				const user = interaction.options.getUser("user", true);
+				const role = interaction.options.getRole("rank", true);
+
+				if (this._roleNames.includes(role.name)) {
+					const actualRoleById = interaction.guild?.roles.cache.find(r => r?.name == role.name)?.id;
+					if (!actualRoleById) return;
+
+					const member = await interaction.guild?.members.fetch(user.id);
+					member?.roles.add(actualRoleById);
+
+					return await interaction.reply({ content: `Assigned <@${user.id}> <@&${role.id}>.`, flags: "Ephemeral" });
+				} else
+					return await interaction.reply({ content: `Cannot assign <@&${role.id}> to <@${user.id}>.`, flags: "Ephemeral" });
+				break; // Redundant.
+			}
+
+			case "odds": {
+				const role = interaction.options.getRole("rank", true);
+				const chance = interaction.options.getNumber("chance", true);
+
+				return await interaction.reply({ content: `Role: <@&${role.id}>\nChance: **${chance}%**`, flags: "Ephemeral" });
+				break; // Redundant.
+			}
 
 			case "list":
-				// ...
-				break;
+				return await interaction.reply({ content: "List deez nutz.", flags: "Ephemeral" });
+				break; // Redundant.
 		}
   }
 }
