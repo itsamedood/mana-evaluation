@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, Role } from "discord.js";
 import Bot from "../../bot";
 import Command, { OptionType } from "../../types/command";
 
@@ -73,6 +73,15 @@ class RankCommand extends Command {
     });
   }
 
+	/**
+	 * Goes through each of the members roles, checking if it is a rank.
+	 * @param member The member to check.
+	 * @returns The role (which is their rank).
+	 */
+	private _checkForExistingRank(member: GuildMember): Role | undefined {
+		return member.roles.cache.find(r => this._roleNames.includes(r?.name));
+	}
+
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
     const modifier = interaction.options.getSubcommand(true);
 
@@ -88,11 +97,16 @@ class RankCommand extends Command {
 				const role = interaction.options.getRole("rank", true);
 
 				if (this._roleNames.includes(role.name)) {
-					const actualRoleById = interaction.guild?.roles.cache.find(r => r?.name == role.name)?.id;
-					if (!actualRoleById) return;
+					await interaction.guild?.roles.fetch(); // Fetch this shit so shit stops blowing up. Frickin' Discord (&/| DJS).
+					// const actualRole = interaction.guild?.roles.cache.find(r => r?.name == role.name);
+					// if (!actualRole) return;
 
-					const member = await interaction.guild?.members.fetch(user.id);
-					member?.roles.add(actualRoleById);
+					const member = await interaction.guild?.members.fetch({ user: user.id, force: true });
+					if (!member) return;
+					const currentRank = this._checkForExistingRank(member);
+
+					if (currentRank) await member?.roles.remove(currentRank.id);
+					await member?.roles.add(role.id);
 
 					return await interaction.reply({ content: `Assigned <@${user.id}> <@&${role.id}>.`, flags: "Ephemeral" });
 				} else
