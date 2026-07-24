@@ -17,10 +17,18 @@ export enum OptionType {
   ATTACHMENT = 11
 }
 
+export interface SubCommandOptionData {
+	name: string;
+	description: string;
+	type: OptionType;
+	required?: boolean | undefined;
+}
+
 export interface OptionData {
   name: string;
   description: string;
   type: OptionType;
+	options?: SubCommandOptionData[] | undefined; // Only used in subcommands & subcommand groups.
   required?: boolean | undefined;
 }
 
