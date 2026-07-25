@@ -25,7 +25,7 @@
 > | Actual Bot			 | 🟢			|
 > | Config Channel   | 🟡			|
 > | Auto-gen'd Roles | 🟢			|
-> | Only One Rank		 | 🟡			|
+> | Only One Rank		 | 🟢			|
 ---
 > # NL
 >
