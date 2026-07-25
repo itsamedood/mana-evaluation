@@ -1,8 +1,19 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Collection, Role } from "discord.js";
 import Bot from "../../bot";
 import Command from "../../types/command";
 
 class SetupCommand extends Command {
+	private e = false;
+	private d = false;
+	private c = false;
+	private b = false;
+	private a = false;
+	private s = false;
+	private n = false; // n = National Level.
+	private madeRoles = false;
+	private madeChannel = false;
+	private readonly configChannelName = "mana-evaluator-config";
+
   constructor() {
     super({
       data: {
@@ -13,76 +24,74 @@ class SetupCommand extends Command {
     });
   }
 
-  public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
-		const channels = await interaction.guild?.channels.fetch();
-		const roles = await interaction.guild?.roles.fetch();
-
-		// Check for config channel.
-		let config_exists = false;
-		channels?.find(c => c?.name == "mana-evaluator-config");
-		// interaction.guild?.channels.cache.forEach((c) => { config_exists = c.name == "mana-evaluator-config" });
-
-		// Check for rank roles.
-		let e = false;
-		let d = false;
-		let c = false;
-		let b = false;
-		let a = false;
-		let s = false;
-		let n = false; // n = National Level.
-
+	private async _rolesExist(interaction: ChatInputCommandInteraction, roles: Collection<string, Role> | undefined): Promise<boolean> {
 		roles?.forEach((r) => {
 			let rank = r.name.charAt(0);
 			let endsWithDashRank = r.name.endsWith("-Rank");
-			// console.log(r.name, endsWithDashRank);
 
 			if (endsWithDashRank) {
 				switch (rank) {
 					case 'E':
-						// console.log("E-Rank role!");
-						e = true;
+						this.e = true;
 						break;
 					case 'D':
-						// console.log("D-Rank role!");
-						d = true;
+						this.d = true;
 						break;
 					case 'C':
-						// console.log("C-Rank role!");
-						c = true;
+						this.c = true;
 						break;
 					case 'B':
-						// console.log("B-Rank role!");
-						b = true;
+						this.b = true;
 						break;
 					case 'A':
-						// console.log("A-Rank role!");
-						a = true;
+						this.a = true;
 						break;
 					case 'S':
-						// console.log("S-Rank role!");
-						s = true;
+						this.s = true;
 						break;
-					default:
-						// ...
-						break;
+					default: break;
 				}
-			} else if (r.name == "National Level") {
-				// console.log("National Level role!");
-				n = true;
-			}
+			} else if (r.name == "National Level") this.n = true;
 		});
 
-		if (!e) interaction.guild?.roles.create({ name: "E-Rank", hoist: true });
-		if (!d) interaction.guild?.roles.create({ name: "D-Rank", hoist: true });
-		if (!c) interaction.guild?.roles.create({ name: "C-Rank", hoist: true });
-		if (!b) interaction.guild?.roles.create({ name: "B-Rank", hoist: true });
-		if (!a) interaction.guild?.roles.create({ name: "A-Rank", hoist: true });
-		if (!s) interaction.guild?.roles.create({ name: "S-Rank", hoist: true });
-		if (!n) interaction.guild?.roles.create({ name: "National Level", hoist: true });
+		return this.e&&this.d&&this.c&&this.b&&this.a&&this.s&&this.n
+	}
 
-		const allRolesExist = e&&d&&c&&b&&a&&s&&n; // e && d && c && b && a && s && n;
-		const content = `Config exists: **${config_exists}**\nAll roles exist: **${allRolesExist}**`;
-		await interaction.reply({ content: content, flags: "Ephemeral" });
+	private async _dealWithRoles(interaction: ChatInputCommandInteraction): Promise<void> {
+		const roles = await interaction.guild?.roles.fetch();
+
+		if (!this._rolesExist(interaction, roles)) {
+			this.madeRoles = true;
+
+			if (!this.e) interaction.guild?.roles.create({ name: "E-Rank", hoist: true });
+			if (!this.d) interaction.guild?.roles.create({ name: "D-Rank", hoist: true });
+			if (!this.c) interaction.guild?.roles.create({ name: "C-Rank", hoist: true });
+			if (!this.b) interaction.guild?.roles.create({ name: "B-Rank", hoist: true });
+			if (!this.a) interaction.guild?.roles.create({ name: "A-Rank", hoist: true });
+			if (!this.s) interaction.guild?.roles.create({ name: "S-Rank", hoist: true });
+			if (!this.n) interaction.guild?.roles.create({ name: "National Level", hoist: true });
+		}
+	}
+
+	private async _dealWithConfigChannel(interaction: ChatInputCommandInteraction) {
+		const channels = await interaction.guild?.channels.fetch();
+		let config_channel = channels?.find(c => c?.name == this.configChannelName);
+
+		if (!config_channel) {
+			this.madeChannel = true;
+			interaction.guild?.channels.create({ name: this.configChannelName });
+		}
+	}
+
+  public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
+		this._dealWithConfigChannel(interaction);
+		this._dealWithRoles(interaction);
+
+		const channelMsg = this.madeChannel ? `Created config channel.` : `Config channel already exists.`;
+		const rolesMsg = this.madeRoles ? `Created 1 or more rank roles.` : `All rank roles already exist.`;
+		const content = `${channelMsg}\n${rolesMsg}\n\n**Finished setup!**`
+
+		return await interaction.reply({ content: content });
 	}
 }
 
