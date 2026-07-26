@@ -89,19 +89,20 @@ class RankCommand extends Command {
 							}
 						]
 					},
-					{
-						name: "massign",
-						type: OptionType.SUB_COMMAND,
-						description: "Mass assigns every unranked member a rank.",
-						options: [
-							{
-								name: "force",
-								type: OptionType.BOOLEAN,
-								description: "Force reassign all members or just the unranked.",
-								required: false
-							}
-						]
-					}
+					/* Aside from getting fucked by rate limit, it's also buggy as shit :( */
+					// {
+					// 	name: "massign",
+					// 	type: OptionType.SUB_COMMAND,
+					// 	description: "Mass assigns every unranked member a rank.",
+					// 	options: [
+					// 		{
+					// 			name: "force",
+					// 			type: OptionType.BOOLEAN,
+					// 			description: "Force reassign all members or just the unranked.",
+					// 			required: false
+					// 		}
+					// 	]
+					// }
         ]
       },
       category: "NL"

@@ -5,7 +5,7 @@
 
 
 # What is it?
-> A fun, Solo Leveling inspired bot that can grant users ranks!
+> A fun, Solo Leveling inspired bot that can grant users ranks after they awaken by sending messages and getting lucky!
 >
 > Official description:
 > ```txt
@@ -15,9 +15,10 @@
 
 # Checklist:
 #### Key:
-- 🟢= Done.
-- 🟡= Working on.
-- 🔴= Not started.
+- 🟢 = Done.
+- 🟡 = Working on.
+- 🔴 = Not started.
+- ❌ = Cancelled.
 > # Framework
 >
 > | Feature  				 | Status  |
@@ -35,6 +36,9 @@
 > | Reroll Rank			 | 🔴			|
 > | List Ranks			 | 🔴			|
 > | Set Rank Odds		 | 🔴     |
+> | Awaken					 | 🔴     |
+> | Set Awaken Odds	 | 🔴     |
+> | Anti-spam				 | 🔴     |
 ---
 > # Fun
 > | Feature  				 | Status  |
@@ -45,5 +49,5 @@
 >
 > | Feature  				 | Status  |
 > | 	--	   				 | 	-- 	  |
-> | Passive Mode		 | 🔴		  |
-> | Forcable Mode		 | 🟡			|
+> | Passive Mode		 | 🟡		  |
+> | Forcable Mode		 | ❌			|
