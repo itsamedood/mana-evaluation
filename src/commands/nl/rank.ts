@@ -6,17 +6,6 @@ class RankCommand extends Command {
 	private _roleNames = ["E-Rank", "D-Rank", "C-Rank", "B-Rank", "A-Rank", "S-Rank", "National Level"];
 
 	// These numbers will be tweakable!
-	// private _weightedRanks= [
-	// 	...Array(40).fill("E-Rank"),
-	// 	...Array(25).fill("D-Rank"),
-	// 	...Array(15).fill("C-Rank"),
-	// 	...Array(10).fill("B-Rank"),
-	// 	...Array(6).fill("A-Rank"),
-	// 	...Array(3).fill("S-Rank"),
-	// 	...Array(1).fill("National Level"),
-	// ]
-
-	// These numbers will be tweakable!
 	private _rankChances: { name: string; chance: number }[] = [
 		{ name: "National Level", chance: 0.5 },
 		{ name: "S-Rank", 				chance: 2.5 },
@@ -173,8 +162,6 @@ class RankCommand extends Command {
 				const role = interaction.options.getRole("rank", true);
 
 				if (this._roleNames.includes(role.name)) {
-					// await interaction.guild?.roles.fetch(); // Fetch this shit so shit stops blowing up. Frickin' Discord (&/| DJS).
-
 					const member = await interaction.guild?.members.fetch({ user: user.id, force: true });
 					if (!member) return;
 					await this._setRank(member, role);
@@ -192,36 +179,6 @@ class RankCommand extends Command {
 				return await interaction.reply({ content: `Role: <@&${role.id}>\nChance: **${chance}%**`, flags: "Ephemeral" });
 				break; // Redundant.
 			}
-
-			case "massign":
-				const force = interaction.options.getBoolean("force", false) ?? false; // If not set, default to false.
-
-				await interaction.reply({ content: `Started mass assign! This could take a while...` });
-
-				const members = await interaction.guild?.members.fetch();
-				if (!members) return;
-
-				// Filter for those whose existing rank returns undefined.
-				const unranked = !force ? members.filter(m => !this._checkForExistingRank(m)) : members;
-
-				for (const member of unranked.values()) {
-					const chosen = this._getRandomRank();
-					const role = roles?.find(r => r.name == chosen);
-					if (!role) continue;
-
-					await this._setRank(member, role);
-					await new Promise(r => setTimeout(r, 1e3)); // Wait 1 second (1000ms) to avoid rate limit.
-				}
-
-				const finishedText = `Finished! Assigned ranks to **${unranked.size}** members!`;
-
-				try {
-					return await interaction.editReply({ content: finishedText });
-				} catch {
-					if (interaction.channel && "send" in interaction.channel)
-						return await interaction.channel.send({ content: finishedText });
-				}
-				break; // Redundant.
 
 			case "list":
 				return await interaction.reply({ content: "List deez nutz.", flags: "Ephemeral" });

@@ -9,7 +9,7 @@
 >
 > Official description:
 > ```txt
-> Have every member evaluated and assigned a rank! From there their rank is given via a role, and you can decide how that plays out in your server. Maybe give your few and rare S-Ranks special privilege compared to common E-Ranks, it's all up to you!
+> Allow your members to chat for the chance to awaken and be evaluated for a rank!
 > ```
 
 

@@ -11,20 +11,18 @@ class SetupCommand extends Command {
 	private s = false;
 	private n = false; // n = National Level.
 	private madeRoles = false;
-	private madeChannel = false;
-	private readonly configChannelName = "mana-evaluator-config";
 
   constructor() {
     super({
       data: {
         name: "setup",
-        description: "Setup the settings and rank channel."
+        description: "Setup the rank roles and config data."
       },
       category: "NL"
     });
   }
 
-	private async _rolesExist(interaction: ChatInputCommandInteraction, roles: Collection<string, Role> | undefined): Promise<boolean> {
+	private async _rolesExist(roles: Collection<string, Role> | undefined): Promise<boolean> {
 		roles?.forEach((r) => {
 			let rank = r.name.charAt(0);
 			let endsWithDashRank = r.name.endsWith("-Rank");
@@ -60,7 +58,7 @@ class SetupCommand extends Command {
 	private async _dealWithRoles(interaction: ChatInputCommandInteraction): Promise<void> {
 		const roles = await interaction.guild?.roles.fetch();
 
-		if (!this._rolesExist(interaction, roles)) {
+		if (!this._rolesExist(roles)) {
 			this.madeRoles = true;
 
 			if (!this.e) interaction.guild?.roles.create({ name: "E-Rank", hoist: true });
@@ -73,23 +71,22 @@ class SetupCommand extends Command {
 		}
 	}
 
-	private async _dealWithConfigChannel(interaction: ChatInputCommandInteraction) {
-		const channels = await interaction.guild?.channels.fetch();
-		let config_channel = channels?.find(c => c?.name == this.configChannelName);
+	// private async _dealWithConfigChannel(interaction: ChatInputCommandInteraction) {
+	// 	const channels = await interaction.guild?.channels.fetch();
+	// 	let config_channel = channels?.find(c => c?.name == this.configChannelName);
 
-		if (!config_channel) {
-			this.madeChannel = true;
-			interaction.guild?.channels.create({ name: this.configChannelName });
-		}
-	}
+	// 	if (!config_channel) {
+	// 		this.madeChannel = true;
+	// 		interaction.guild?.channels.create({ name: this.configChannelName });
+	// 	}
+	// }
 
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
-		this._dealWithConfigChannel(interaction);
+		// this._dealWithConfigChannel(interaction);
 		this._dealWithRoles(interaction);
 
-		const channelMsg = this.madeChannel ? `Created config channel.` : `Config channel already exists.`;
 		const rolesMsg = this.madeRoles ? `Created 1 or more rank roles.` : `All rank roles already exist.`;
-		const content = `${channelMsg}\n${rolesMsg}\n\n**Finished setup!**`
+		const content = `${rolesMsg}\n\n**Finished setup!**`
 
 		return await interaction.reply({ content: content });
 	}

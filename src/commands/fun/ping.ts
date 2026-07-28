@@ -9,7 +9,7 @@ class PingCommand extends Command {
         name: "ping",
         description: "Pong! Used to check latency."
       },
-      category: "CONFIG"
+      category: "FUN"
     });
   }
 

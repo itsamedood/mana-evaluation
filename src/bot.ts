@@ -2,6 +2,7 @@ import { Client, type ClientOptions, Collection, CommandInteraction, REST, Route
 import { glob } from "glob";
 import type { CommandData } from "./types/command";
 import type Command from "./types/command";
+import type ConfigData from "./types/configData";
 import type Event from "./types/event";
 import type Set from "./types/set";
 
@@ -13,6 +14,7 @@ export default class Bot extends Client {
   public readonly buttons = new Collection<string, any>();
   public readonly menus = new Collection<string, any>();
   public readonly modals = new Collection<string, any>();
+	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 
   constructor(options: ClientOptions) { super(options); }
