@@ -93,5 +93,5 @@ class SetupCommand extends Command {
 }
 
 export default {
-  command: new SetupCommand()
+  name: new SetupCommand()
 }

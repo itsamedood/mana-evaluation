@@ -13,7 +13,7 @@ import {
 import Event from "../types/event";
 import Bot from "../bot";
 
-export default class InteractionCreateEvent extends Event {
+class InteractionCreateEvent extends Event {
   constructor() {
     super({ name: "interactionCreate" });
   }
@@ -47,4 +47,8 @@ export default class InteractionCreateEvent extends Event {
       }
     }
   }
+}
+
+export default {
+	name: new InteractionCreateEvent()
 }

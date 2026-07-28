@@ -18,8 +18,9 @@ const client = new Bot({
 });
 
 (async (): Promise<void> => {
+	await client.processEventSets();
+	await client.registerEvents();
   await client.processSets();
-  await client.registerEvents();
   await client.registerCommands();
   await client.login(process.env["TOKEN"]); // This should be last!
 })();

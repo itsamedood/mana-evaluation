@@ -1,19 +1,19 @@
-import { Client, type ClientOptions, Collection, CommandInteraction, REST, Routes } from "discord.js";
+import { Client, type ClientOptions, Collection, REST, Routes } from "discord.js";
 import { glob } from "glob";
 import type { CommandData } from "./types/command";
-import type Command from "./types/command";
+import type Button from "./types/button";
 import type ConfigData from "./types/configData";
-import type Event from "./types/event";
 import type Set from "./types/set";
+import Command from "./types/command";
+import Event from "./types/event";
 
 export default class Bot extends Client {
   public readonly sets: Set[] = [];
+	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
-  public readonly msgCommands = new Collection<string, Command>();
-  public readonly events = new Collection<string, Event>();
-  public readonly buttons = new Collection<string, any>();
-  public readonly menus = new Collection<string, any>();
-  public readonly modals = new Collection<string, any>();
+  public readonly buttons = new Collection<string, Button>();
+  // public readonly menus = new Collection<string, any>();
+  // public readonly modals = new Collection<string, any>();
 	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 
@@ -23,7 +23,18 @@ export default class Bot extends Client {
     return `\`\`\`${lang ?? `txt`}\n${text}\n\`\`\``;
   }
 
-  public async processSets(): Promise<Set[]> {
+	public async processEventSets(): Promise<void> {
+		// No need for **/ because event files aren't nested in subdirs.
+		const files = await glob(`${import.meta.dir}/events/*.ts`, { absolute: true });
+		for (const file of files) {
+			const { default: _set } = await import(file);
+			const set: Set = _set;
+
+			this.eventSets.push(set);
+		}
+	}
+
+  public async processSets(): Promise<void> {
     const files = await glob(`${import.meta.dir}/commands/**/*.ts`, { absolute: true });
     for (const file of files) {
       const { default: _set } = await import(file);
@@ -31,19 +42,15 @@ export default class Bot extends Client {
 
       this.sets.push(set);
     }
-
-    return this.sets;
   }
 
   public async registerCommands(): Promise<void> {
     for (const set of this.sets) {
-      const command: Command = set.command;
+      const command: Command | Event = set.name;
+			if (!(command instanceof Command)) return; // If it (for some reason) isn't a command.
 
-      if (command.data.msg) this.msgCommands.set(command.data.name, command);
-      else {
-        this.commands.set(command.data.name, command);
-        this.cmdJSONArray.push(command.data);
-      }
+			this.commands.set(command.data.name, command);
+			this.cmdJSONArray.push(command.data);
 
       console.log(`🟢 ${command.data.name} command registered!`);
     }
@@ -69,22 +76,30 @@ export default class Bot extends Client {
   }
 
   public async registerEvents(): Promise<void> {
-    const files = await glob(`${import.meta.dir}/events/**/*.ts`, { absolute: true });
+    for (const set of this.eventSets) {
+			const event = set.name;
+			if (!(event instanceof Event)) return; // If it (for some reason) isn't of type Event.
 
-    for (const file of files) {
-      const { default: Event } = await import(file);
-      const event: Event = new Event();
-
-      event.once ? this.once(event.name, (...args) => event.execute(this, ...args))
-        : this.on(event.name, (...args) => event.execute(this, ...args));
+			event.once ? this.once(event.name, (...args) => event.execute(this, ...args))
+				: this.on(event.name, (...args) => event.execute(this, ...args));
 
       console.log(`🔵 ${event.name} event loaded!`);
     }
   }
 
-  public async registerButtons(): Promise<void> { }
-  public async registerMenus(): Promise<void> { }
-  public async registerModals(): Promise<void> { }
+	public async registerButtons(): Promise<void> {
+		for (const set of this.sets.concat(this.eventSets)) {
+			if (set.buttons)
+				for (const button of set.buttons) {
+					this.buttons.set(button.customId, button);
+					console.log(`🟤 ${button.customId} button registered!`);
+				}
+			else continue;
+		}
+	}
+
+  // public async registerMenus(): Promise<void> { }
+  // public async registerModals(): Promise<void> { }
 
   /**
    * Checks if the bot is in the given guild.

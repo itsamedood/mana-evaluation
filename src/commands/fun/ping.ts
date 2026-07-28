@@ -20,5 +20,5 @@ class PingCommand extends Command {
 }
 
 export default {
-  command: new PingCommand()
+  name: new PingCommand()
 }

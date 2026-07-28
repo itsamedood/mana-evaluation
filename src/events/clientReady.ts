@@ -2,7 +2,7 @@ import { ActivityType } from "discord.js";
 import Event from "../types/event";
 import Bot from "../bot";
 
-export default class ClientReadyEvent extends Event {
+class ClientReadyEvent extends Event {
   constructor() { super({ name: "clientReady", once: true }); }
 
   public async execute(client: Bot) {
@@ -19,4 +19,8 @@ export default class ClientReadyEvent extends Event {
 
     console.log(`🏁 Finished! Logged in as ${client.user.username}!`);
   }
+}
+
+export default {
+	name: new ClientReadyEvent()
 }

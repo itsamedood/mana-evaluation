@@ -2,7 +2,7 @@ import type { Message } from "discord.js";
 import Event from "../types/event";
 import Bot from "../bot";
 
-export default class MessageCreateEvent extends Event {
+class MessageCreateEvent extends Event {
   constructor() { super({ name: "messageCreate" }); }
 
 	private _rollForAwakening(): void {
@@ -13,4 +13,9 @@ export default class MessageCreateEvent extends Event {
   public async execute(client: Bot, message: Message) {
     //
   }
+}
+
+export default {
+	name: new MessageCreateEvent(),
+	buttons: []
 }

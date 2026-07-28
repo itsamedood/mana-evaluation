@@ -17,5 +17,5 @@ class SettingsCommand extends Command {
 }
 
 export default {
-  command: new SettingsCommand()
+  name: new SettingsCommand()
 }

@@ -20,5 +20,5 @@ class AboutCommand extends Command {
 }
 
 export default {
-	command: new AboutCommand()
+	name: new AboutCommand()
 }

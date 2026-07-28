@@ -77,21 +77,7 @@ class RankCommand extends Command {
 								required: true
 							}
 						]
-					},
-					/* Aside from getting fucked by rate limit, it's also buggy as shit :( */
-					// {
-					// 	name: "massign",
-					// 	type: OptionType.SUB_COMMAND,
-					// 	description: "Mass assigns every unranked member a rank.",
-					// 	options: [
-					// 		{
-					// 			name: "force",
-					// 			type: OptionType.BOOLEAN,
-					// 			description: "Force reassign all members or just the unranked.",
-					// 			required: false
-					// 		}
-					// 	]
-					// }
+					}
         ]
       },
       category: "NL"
@@ -154,7 +140,6 @@ class RankCommand extends Command {
 					await this._setRank(member, cRole);
 
 				return await interaction.reply({ content: `Rerolled <@${user.id}>'s rank!\n<@&${ogRank?.id}> => <@&${cRole.id}>` });
-				break; // Redundant.
 			}
 
 			case "set": {
@@ -169,7 +154,6 @@ class RankCommand extends Command {
 					return await interaction.reply({ content: `Assigned <@${user.id}> <@&${role.id}>.`, flags: "Ephemeral" });
 				} else
 					return await interaction.reply({ content: `Cannot assign <@&${role.id}> to <@${user.id}>.`, flags: "Ephemeral" });
-				break; // Redundant.
 			}
 
 			case "odds": {
@@ -177,16 +161,14 @@ class RankCommand extends Command {
 				const chance = interaction.options.getNumber("chance", true);
 
 				return await interaction.reply({ content: `Role: <@&${role.id}>\nChance: **${chance}%**`, flags: "Ephemeral" });
-				break; // Redundant.
 			}
 
 			case "list":
 				return await interaction.reply({ content: "List deez nutz.", flags: "Ephemeral" });
-				break; // Redundant.
 		}
   }
 }
 
 export default {
-  command: new RankCommand()
+  name: new RankCommand()
 }
