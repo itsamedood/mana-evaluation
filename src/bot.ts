@@ -12,8 +12,6 @@ export default class Bot extends Client {
 	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
   public readonly buttons = new Collection<string, Button>();
-  // public readonly menus = new Collection<string, any>();
-  // public readonly modals = new Collection<string, any>();
 	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 
