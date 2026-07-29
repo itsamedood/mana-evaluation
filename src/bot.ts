@@ -5,9 +5,11 @@ import type Button from "./types/button";
 import type ConfigData from "./types/configData";
 import type Set from "./types/set";
 import Command from "./types/command";
+import DataManager from "./dataManager";
 import Event from "./types/event";
 
 export default class Bot extends Client {
+	public readonly dataMngr = new DataManager();
   public readonly sets: Set[] = [];
 	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
