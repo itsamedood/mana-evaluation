@@ -6,9 +6,10 @@ class ClientReadyEvent extends Event {
   constructor() { super({ name: "clientReady", once: true }); }
 
   public async execute(client: Bot) {
-    if (!client.user) return;
+    const entries = await client.dataMngr.fetchAllEntries();
+		const guilds = await client.guilds.fetch();
 
-    client.user.setPresence({
+    client.user?.setPresence({
       status: "idle",
       activities: [{
         name: "Waiting for someone to evaluate...",
@@ -17,7 +18,19 @@ class ClientReadyEvent extends Event {
       }]
     });
 
-    console.log(`🏁 Finished! Logged in as ${client.user.username}!`);
+		console.log(`🔍 Checking that all guilds have an entry...`);
+		await client.ensureAllGuildsHaveAnEntry();
+		console.log(`👍 Done checking!`);
+
+		console.log(`📂 Validating entries...`);
+		await client.dataMngr.validateEntries([...guilds.keys()], entries);
+		console.log(`📁 Done validating!`);
+
+		console.log(`🗃️ Caching entries...`);
+		await client.dataMngr.cacheAllEntries(entries);
+		console.log(`🗳️ Cached entries!`);
+
+    console.log(`🏁 Finished! Logged in as ${client.user?.username}!`);
   }
 }
 

@@ -23,6 +23,18 @@ export default class Bot extends Client {
     return `\`\`\`${lang ?? `txt`}\n${text}\n\`\`\``;
   }
 
+	/**
+	 * Goes through all guilds this client is in, and checks they have an entry in `/guilds`.
+	 */
+	public async ensureAllGuildsHaveAnEntry(): Promise<void> {
+		const guilds = await this.guilds.fetch();
+
+		for (const guildId of guilds.keys())
+			await this.dataMngr.createNewEntry(guildId);
+
+		this.guilds.cache.clear();
+	}
+
 	public async processEventSets(): Promise<void> {
 		// No need for **/ because event files aren't nested in subdirs.
 		const files = await glob(`${import.meta.dir}/events/*.ts`, { absolute: true });
