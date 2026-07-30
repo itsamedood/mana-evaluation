@@ -18,6 +18,7 @@ export default interface ConfigData {
 		s: { minMana: number };
 		n: { minMana: number };
 	};
+	modified: boolean;
 }
 
 /**
@@ -43,5 +44,6 @@ export const DEFAULT_CONFIG_DATA: ConfigData = {
 		a: { minMana: 8000 },
 		s: { minMana: 25000 },
 		n: { minMana: 90000 }
-	}
+	},
+	modified: false
 }

@@ -6,8 +6,9 @@ import type ConfigData from "./types/configData";
  * Handles everything related to server-specific config data saved in files.
  */
 export default class DataManager {
-	public cache = new Map<string, ConfigData>();
-	private dirPath = `${import.meta.dir}/../guilds`;
+	public readonly cache = new Map<string, ConfigData>();
+	public readonly JSONify = (data: ConfigData) => { return JSON.stringify(data, null, 2); };
+	private readonly _dirPath = `${import.meta.dir}/../guilds`;
 
 	constructor() { }
 
@@ -18,7 +19,7 @@ export default class DataManager {
 	 */
 	public async fetchAllEntries(): Promise<string[]> {
 		const entries: string[] = [];
-		const files = await glob(`${this.dirPath}/*.json`);
+		const files = await glob(`${this._dirPath}/*.json`);
 
 		for (const file of files) {
 			const guildId = file.replace(".json", '')
@@ -37,7 +38,7 @@ export default class DataManager {
 	public async cacheAllEntries(entries: string[]): Promise<void> {
 		try {
 			for (const guildId of entries) {
-				const bunFile = Bun.file(`${this.dirPath}/${guildId}.json`);
+				const bunFile = Bun.file(`${this._dirPath}/${guildId}.json`);
 				const data: ConfigData = await bunFile.json();
 
 				this.cache.set(guildId, data);
@@ -55,7 +56,7 @@ export default class DataManager {
 	/**
 	 * Checks if the guild has an entry in `/guilds`.
 	 */
-	public async entryExists(guildId: string): Promise<boolean> { return Bun.file(`${this.dirPath}/${guildId}.json`).exists(); }
+	public async entryExists(guildId: string): Promise<boolean> { return Bun.file(`${this._dirPath}/${guildId}.json`).exists(); }
 
 	/**
 	 * Creates a new file in `/guilds`. The name is `<guildId>.json`.
@@ -70,11 +71,11 @@ export default class DataManager {
 
 		try {
 			const defaultData = DEFAULT_CONFIG_DATA;
-			const path = `${this.dirPath}/${guildId}.json`;
+			const path = `${this._dirPath}/${guildId}.json`;
 
 			defaultData.guildId = guildId; // Update this from an empty string to the value.
 
-			Bun.write(path, JSON.stringify(defaultData, null, 2));
+			Bun.write(path, this.JSONify(defaultData));
 			this.cache.set(guildId, defaultData);
 			console.log(`📥 Created entry ${path}!`);
 		} catch (err) { console.error(`Failed to create entry!`, err); }
@@ -84,7 +85,7 @@ export default class DataManager {
 	 * Removes an entry in `/guilds`.
 	 */
 	public async removeEntry(guildId: string): Promise<void> {
-		const path = `${this.dirPath}/${guildId}.json`;
+		const path = `${this._dirPath}/${guildId}.json`;
 
 		try {
 			Bun.file(path).delete(); // First, delete the physical file.
@@ -92,5 +93,17 @@ export default class DataManager {
 
 			console.log(`📤 Removed entry ${path}!`);
 		} catch (err) { console.error(`Failed to remove entry! File may not exist.`, err); }
+	}
+
+	public async writeToEntry(guildId: string): Promise<void> {
+		if (!this.cache.has(guildId) || !(await this.entryExists(guildId))) return;
+
+		try {
+			const path = `${this._dirPath}/${guildId}.json`;
+			const data = this.cache.get(guildId);
+
+			if (!data) return;
+			Bun.write(path, this.JSONify(data));
+		} catch (err) { console.error(`Failed to write to guilds/${guildId}.json!`, err); }
 	}
 }
