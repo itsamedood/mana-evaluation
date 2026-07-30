@@ -11,6 +11,10 @@ export default class DataManager {
 
 	constructor() { }
 
+	public async checkEachGuildHasAnEntry(): Promise<void> {
+		//
+	}
+
 	/**
 	 * Takes all entries in `/guilds` and stores them in `this.cache`.
 	 */
