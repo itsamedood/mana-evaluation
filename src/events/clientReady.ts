@@ -27,7 +27,7 @@ class ClientReadyEvent extends Event {
 		console.log(`📁 Done validating!`);
 
 		console.log(`🗃️ Caching entries...`);
-		await client.dataMngr.cacheAllEntries(entries);
+		await client.dataMngr.cache.cacheAllEntries(entries);
 		console.log(`🗳️ Cached entries!`);
 
     console.log(`🏁 Finished! Logged in as ${client.user?.username}!`);

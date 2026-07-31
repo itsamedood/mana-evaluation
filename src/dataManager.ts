@@ -3,10 +3,47 @@ import { glob } from "glob";
 import type ConfigData from "./types/configData";
 
 /**
+ * Keeps the functions related to the DataManager cache seperate, for cleanliness.
+ */
+export class DMCacheManager extends Map<string, ConfigData> {
+	private readonly _dirPath = `${import.meta.dir}/../guilds`;
+
+	constructor() { super(); }
+
+	/**
+	 * Takes all entries in `/guilds` and stores them in `this.cache`.
+	 */
+	public async cacheAllEntries(entries: string[]): Promise<void> {
+		try {
+			for (const guildId of entries) {
+				const bunFile = Bun.file(`${this._dirPath}/${guildId}.json`);
+				const data: ConfigData = await bunFile.json();
+
+				this.set(guildId, data);
+				console.log(`📦 Cached ${guildId}.json!`);
+			}
+		} catch (err) { console.error(`Failed to cache! File probably doesn't exist.`); }
+	}
+
+	/**
+	 * Modifies data in the cache, and gets physically written later.
+	 */
+	public async modifyData(guildId: string): Promise<void> {
+		try {
+			const data = this.get(guildId);
+
+			if (!data) return;
+			data.modified = true; // Easy one.
+			//
+		} catch (err) { console.error(`Failed to modify data for ${guildId}!`, err); }
+	}
+}
+
+/**
  * Handles everything related to server-specific config data saved in files.
  */
 export default class DataManager {
-	public readonly cache = new Map<string, ConfigData>();
+	public readonly cache = new DMCacheManager();
 	public readonly JSONify = (data: ConfigData) => { return JSON.stringify(data, null, 2); };
 	private readonly _dirPath = `${import.meta.dir}/../guilds`;
 
@@ -30,21 +67,6 @@ export default class DataManager {
 		}
 
 		return entries;
-	}
-
-	/**
-	 * Takes all entries in `/guilds` and stores them in `this.cache`.
-	 */
-	public async cacheAllEntries(entries: string[]): Promise<void> {
-		try {
-			for (const guildId of entries) {
-				const bunFile = Bun.file(`${this._dirPath}/${guildId}.json`);
-				const data: ConfigData = await bunFile.json();
-
-				this.cache.set(guildId, data);
-				console.log(`📦 Cached ${guildId}.json!`);
-			}
-		} catch (err) { console.error(`Failed to cache! File probably doesn't exist.`); }
 	}
 
 	public async validateEntries(guildIds: string[], entryIds: string[]): Promise<void> {
@@ -95,6 +117,9 @@ export default class DataManager {
 		} catch (err) { console.error(`Failed to remove entry! File may not exist.`, err); }
 	}
 
+	/**
+	 * Writes data to `guilds/<guildId>.json` (data is cached).
+	 */
 	public async writeToEntry(guildId: string): Promise<void> {
 		if (!this.cache.has(guildId) || !(await this.entryExists(guildId))) return;
 
