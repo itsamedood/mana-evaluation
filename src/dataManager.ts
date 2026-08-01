@@ -27,14 +27,45 @@ export class DMCacheManager extends Map<string, ConfigData> {
 
 	/**
 	 * Modifies data in the cache, and gets physically written later.
+	 *
+	 * Messy function but it should get the job done, will find out when testing later.
 	 */
-	public async modifyData(guildId: string): Promise<void> {
+	public async modifyData(guildId: string,
+		awakenOdds?: number | undefined,
+		maxNationalLevels?: number | undefined,
+		manaRange?: {min: number, max: number} | undefined,
+		ranks?: {
+			e: {minMana: number},
+			d: {minMana: number},
+			c: {minMana: number},
+			b: {minMana: number},
+			a: {minMana: number},
+			s: {minMana: number},
+			n: {minMana: number},
+		} | undefined): Promise<void> {
 		try {
 			const data = this.get(guildId);
-
 			if (!data) return;
-			data.modified = true; // Easy one.
-			//
+
+			data.modified = true;
+			if (awakenOdds) data.awakenOdds = awakenOdds;
+			if (maxNationalLevels) data.maxNationalLevels = maxNationalLevels;
+			if (manaRange) {
+				data.manaRange.min = manaRange.min;
+				data.manaRange.max = manaRange.max;
+			}
+			if (ranks) {
+				data.ranks.e.minMana =  ranks.e.minMana;
+				data.ranks.d.minMana =  ranks.d.minMana;
+				data.ranks.c.minMana =  ranks.c.minMana;
+				data.ranks.b.minMana =  ranks.b.minMana;
+				data.ranks.a.minMana =  ranks.a.minMana;
+				data.ranks.s.minMana =  ranks.s.minMana;
+				data.ranks.n.minMana =  ranks.n.minMana;
+			}
+
+			// Update entry in cache with modified data.
+			this.set(guildId, data);
 		} catch (err) { console.error(`Failed to modify data for ${guildId}!`, err); }
 	}
 }
@@ -43,8 +74,21 @@ export class DMCacheManager extends Map<string, ConfigData> {
  * Handles everything related to server-specific config data saved in files.
  */
 export default class DataManager {
+	/**
+	 * In-memory cache for each entries data.
+	 */
 	public readonly cache = new DMCacheManager();
-	public readonly JSONify = (data: ConfigData) => { return JSON.stringify(data, null, 2); };
+
+	/**
+	 * Converts `ConfigData` to JSON as a `string`.
+	 */
+	public readonly JSONify = (data: ConfigData): string => { return JSON.stringify(data, null, 2); };
+
+	/**
+	 * Checks if the guild has an entry in `/guilds`.
+	 */
+	public readonly entryExists = (guildId: string): Promise<boolean> => { return Bun.file(`${this._dirPath}/${guildId}.json`).exists(); };
+
 	private readonly _dirPath = `${import.meta.dir}/../guilds`;
 
 	constructor() { }
@@ -75,10 +119,7 @@ export default class DataManager {
 		for (const entry of entryIds) !guildSet.has(entry) ? this.removeEntry(entry) : console.log(`👌 ${entry} is valid.`);
 	}
 
-	/**
-	 * Checks if the guild has an entry in `/guilds`.
-	 */
-	public async entryExists(guildId: string): Promise<boolean> { return Bun.file(`${this._dirPath}/${guildId}.json`).exists(); }
+	// public async entryExists(guildId: string): Promise<boolean> { return Bun.file(`${this._dirPath}/${guildId}.json`).exists(); }
 
 	/**
 	 * Creates a new file in `/guilds`. The name is `<guildId>.json`.
