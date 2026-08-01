@@ -3,7 +3,7 @@ import { glob } from "glob";
 import type ConfigData from "./types/configData";
 
 /**
- * Keeps the functions related to the DataManager cache seperate, for cleanliness.
+ * Keeps the functions related to `DataManager.cache` seperate, for cleanliness.
  */
 export class DMCacheManager extends Map<string, ConfigData> {
 	private readonly _dirPath = `${import.meta.dir}/../guilds`;

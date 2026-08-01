@@ -11,6 +11,7 @@ class SetupCommand extends Command {
 	private s = false;
 	private n = false; // n = National Level.
 	private madeRoles = false;
+	private madeNewEntry = false;
 
   constructor() {
     super({
@@ -71,22 +72,24 @@ class SetupCommand extends Command {
 		}
 	}
 
-	// private async _dealWithConfigChannel(interaction: ChatInputCommandInteraction) {
-	// 	const channels = await interaction.guild?.channels.fetch();
-	// 	let config_channel = channels?.find(c => c?.name == this.configChannelName);
-
-	// 	if (!config_channel) {
-	// 		this.madeChannel = true;
-	// 		interaction.guild?.channels.create({ name: this.configChannelName });
-	// 	}
-	// }
-
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
-		// this._dealWithConfigChannel(interaction);
+		// Config data.
+		if (interaction.guild) {
+			const data = client.dataMngr.cache.get(interaction.guild.id);
+			const physicalFileExists = await client.dataMngr.entryExists(interaction.guild.id);
+
+			if (!physicalFileExists || !data) {
+				await client.dataMngr.createNewEntry(interaction.guild.id);
+				this.madeNewEntry = true;
+			}
+		}
+
+		// Roles.
 		this._dealWithRoles(interaction);
 
+		const dataMsg = this.madeNewEntry ? `Created config data.` : `Config data already exists.`;
 		const rolesMsg = this.madeRoles ? `Created 1 or more rank roles.` : `All rank roles already exist.`;
-		const content = `${rolesMsg}\n\n**Finished setup!**`
+		const content = `${dataMsg}\n${rolesMsg}\n\n**Finished setup!**`
 
 		return await interaction.reply({ content: content });
 	}
