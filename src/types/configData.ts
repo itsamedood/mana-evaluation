@@ -5,6 +5,7 @@ export default interface ConfigData {
 	guildId: string;
 	awakenOdds: number;
 	maxNationalLevels: number;
+	awakenedUsers: Map<string, number>; // Map of user IDs to their mana levels.
 	manaRange: {
 		min: number;
 		max: number;
@@ -27,11 +28,8 @@ export default interface ConfigData {
 export const DEFAULT_CONFIG_DATA: ConfigData = {
 	guildId: '',
 	awakenOdds: 0.5, // %
-	/**
-	 * 0 means no National Level, since it's not technically an 'obtainable rank', rather just a title.
-	 * -1 means infinite.
-   */
-	maxNationalLevels: 5,
+	maxNationalLevels: 5, // -1 means no National Level, since it's not a rank, but just a title. 0 means infinite.
+	awakenedUsers: new Map<string, number>(),
 	manaRange: {
 		min: 10,
 		max: 100000,

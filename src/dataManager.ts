@@ -26,46 +26,59 @@ export class DMCacheManager extends Map<string, ConfigData> {
 	}
 
 	/**
-	 * Modifies data in the cache, and gets physically written later.
-	 *
-	 * Messy function but it should get the job done, will find out when testing later.
+	 * Modifies data in cache to be written later.
+	 * If all parameters are `undefined`, this function sets `data.modified` to `false`.
+	 * @param guildId ID of the guild to modify the data of.
+	 * @param awakenOdds Set the odds to awaken.
+	 * @param maxNationalLevels Set the max number of national levels. 0 for infinite, -1 for none.
+	 * @param manaRange Set the min and max of the mana range.
+	 * @param ranks Set each ranks min mana requirement.
 	 */
 	public async modifyData(guildId: string,
 		awakenOdds?: number | undefined,
 		maxNationalLevels?: number | undefined,
 		manaRange?: {min: number, max: number} | undefined,
 		ranks?: {
-			e: {minMana: number},
-			d: {minMana: number},
-			c: {minMana: number},
-			b: {minMana: number},
-			a: {minMana: number},
-			s: {minMana: number},
-			n: {minMana: number},
+			e: {minMana?: number | undefined},
+			d: {minMana?: number | undefined},
+			c: {minMana?: number | undefined},
+			b: {minMana?: number | undefined},
+			a: {minMana?: number | undefined},
+			s: {minMana?: number | undefined},
+			n: {minMana?: number | undefined},
 		} | undefined): Promise<void> {
 		try {
 			const data = this.get(guildId);
 			if (!data) return;
 
-			data.modified = true;
-			if (awakenOdds) data.awakenOdds = awakenOdds;
-			if (maxNationalLevels) data.maxNationalLevels = maxNationalLevels;
-			if (manaRange) {
-				data.manaRange.min = manaRange.min;
-				data.manaRange.max = manaRange.max;
-			}
-			if (ranks) {
-				data.ranks.e.minMana =  ranks.e.minMana;
-				data.ranks.d.minMana =  ranks.d.minMana;
-				data.ranks.c.minMana =  ranks.c.minMana;
-				data.ranks.b.minMana =  ranks.b.minMana;
-				data.ranks.a.minMana =  ranks.a.minMana;
-				data.ranks.s.minMana =  ranks.s.minMana;
-				data.ranks.n.minMana =  ranks.n.minMana;
-			}
+			// If all parameters are undefined, reset data.modified to false.
+			if (
+				!awakenOdds 			 &&
+				!maxNationalLevels &&
+				!manaRange				 &&
+				!ranks // No ranks would mean no e-n.minMana.
+			) { data.modified = false; }
+			else {
+				data.modified = true;
+				if (awakenOdds) data.awakenOdds = awakenOdds;
+				if (maxNationalLevels) data.maxNationalLevels = maxNationalLevels;
+				if (manaRange) {
+					data.manaRange.min = manaRange.min;
+					data.manaRange.max = manaRange.max;
+				}
+				if (ranks) {
+					if (ranks.e.minMana) data.ranks.e.minMana =  ranks.e.minMana;
+					if (ranks.d.minMana) data.ranks.d.minMana =  ranks.d.minMana;
+					if (ranks.c.minMana) data.ranks.c.minMana =  ranks.c.minMana;
+					if (ranks.b.minMana) data.ranks.b.minMana =  ranks.b.minMana;
+					if (ranks.a.minMana) data.ranks.a.minMana =  ranks.a.minMana;
+					if (ranks.s.minMana) data.ranks.s.minMana =  ranks.s.minMana;
+					if (ranks.n.minMana) data.ranks.n.minMana =  ranks.n.minMana;
+				}
 
-			// Update entry in cache with modified data.
-			this.set(guildId, data);
+				// Update entry in cache with modified data.
+				this.set(guildId, data);
+			}
 		} catch (err) { console.error(`Failed to modify data for ${guildId}!`, err); }
 	}
 }
@@ -171,5 +184,11 @@ export default class DataManager {
 			if (!data) return;
 			Bun.write(path, this.JSONify(data));
 		} catch (err) { console.error(`Failed to write to guilds/${guildId}.json!`, err); }
+	}
+
+	public async writeAllModifiedEntries(): Promise<void> {
+		for (const data of this.cache.values().filter(v => v.modified)) {
+			this.writeToEntry(data.guildId);
+		}
 	}
 }

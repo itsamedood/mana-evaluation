@@ -7,13 +7,16 @@ import type Set from "./types/set";
 import Command from "./types/command";
 import DataManager from "./dataManager";
 import Event from "./types/event";
+import RankManager from "./rankManager";
 
 export default class Bot extends Client {
 	public readonly dataMngr = new DataManager();
+	public readonly rankMngr = new RankManager();
   public readonly sets: Set[] = [];
 	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
   public readonly buttons = new Collection<string, Button>();
+	public readonly slowed: string[] = []; // Contains user IDs, used against spam for increased awaken odds.
 	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 

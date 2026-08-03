@@ -6,6 +6,3 @@
 *.env
 *.DS_Store
 bun.lock
-
-# Basically the bots database for server-specific config data.
-.CONFIG
