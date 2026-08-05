@@ -19,8 +19,6 @@ export default class RankManager {
 	 */
 	public readonly rollAwakening = (odds: number): boolean => { return odds != 100 ? (Math.random() * 100) < odds : true; }
 
-	constructor() { }
-
 	/**
 	 * Goes through each of the members roles, checking if it is a rank.
 	 * @param member The member to check.

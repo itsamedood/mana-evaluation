@@ -1,8 +1,7 @@
 /node_modules
 /guilds
 /.idea
-/.vscode
 *.log
 *.env
 *.DS_Store
-bun.lock
+# According to SonarQube `bun.lock` (and other lock files) should be committed.

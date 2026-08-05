@@ -54,7 +54,7 @@ class RankCommand extends Command {
 
   public async execute(interaction: ChatInputCommandInteraction, client: Bot) {
     const modifier = interaction.options.getSubcommand(true);
-		const roles = await interaction.guild?.roles.fetch();
+		// const roles = await interaction.guild?.roles.fetch();
 
 		switch (modifier) {
 			case "reroll": {

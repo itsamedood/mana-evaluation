@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Bun Start",
+            "type": "shell",
+            "command": "bun start"
+        },
+				{
+					"label": "Bun Watch",
+					"type": "shell",
+					"command": "bun --watch src/index.ts"
+				}
+    ]
+}

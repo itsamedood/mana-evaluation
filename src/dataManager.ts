@@ -8,8 +8,6 @@ import type ConfigData from "./types/configData";
 export class DMCacheManager extends Map<string, ConfigData> {
 	private readonly _dirPath = `${import.meta.dir}/../guilds`;
 
-	constructor() { super(); }
-
 	/**
 	 * Takes all entries in `/guilds` and stores them in `this.cache`.
 	 */
