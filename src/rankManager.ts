@@ -12,6 +12,13 @@ export default class RankManager {
 	*/
 	public readonly rollMana = (min: number, max: number): number => { return (Math.random() * (max - min)) + min; }
 
+	/**
+	 * Rolls a random number between 0 and 100, and compares to `odds`. Automatically returns `true` if `odds` is `100`.
+	 * @param odds Awakening odds (default: 0.5%).
+	 * @returns `boolean`.
+	 */
+	public readonly rollAwakening = (odds: number): boolean => { return odds != 100 ? (Math.random() * 100) < odds : true; }
+
 	constructor() { }
 
 	/**
