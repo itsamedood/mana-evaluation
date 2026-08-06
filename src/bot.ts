@@ -10,17 +10,22 @@ import Event from "./types/event";
 import RankManager from "./rankManager";
 
 export default class Bot extends Client {
+	public readonly debug: boolean;
 	public readonly dataMngr = new DataManager();
 	public readonly rankMngr = new RankManager();
   public readonly sets: Set[] = [];
 	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
   public readonly buttons = new Collection<string, Button>();
+	public readonly awakenMessage = (userId: string): string => `<@${userId}> has awakened! Stand by for rank assessment.`;
 	public slowed: string[] = []; // Contains user IDs, used against spam for increased awaken odds.
 	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 
-  constructor(options: ClientOptions) { super(options); }
+  constructor(options: ClientOptions, debug: boolean) {
+		super(options);
+		this.debug = debug;
+	}
 
   public codeBlock(text: string, lang?: string | undefined): string {
     return `\`\`\`${lang ?? `txt`}\n${text}\n\`\`\``;

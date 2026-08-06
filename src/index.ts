@@ -3,7 +3,7 @@ import Bot from "./bot";
 
 const client = new Bot({
   intents: [
-		GatewayIntentBits.Guilds, // How the fuck did I not have this already...
+		GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMessages,
@@ -16,9 +16,10 @@ const client = new Bot({
     Partials.Message,
     Partials.Reaction,
   ],
-});
+}, Bun.argv.includes("-debug"));
 
 (async (): Promise<void> => {
+	console.log(client.debug ? `🪲 Started in debug mode!` : `⚙️ Starting...`);
 	await client.processEventSets();
 	await client.registerEvents();
   await client.processSets();

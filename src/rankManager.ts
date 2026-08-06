@@ -1,4 +1,5 @@
 import type { APIRole, GuildMember, Role } from "discord.js";
+import type ConfigData from "./types/configData";
 
 /**
  * Handles rank stuff in guilds.
@@ -40,9 +41,24 @@ export default class RankManager {
 		//
 	}
 
-	public async awaken(): Promise<void> { }
+	/**
+	 * Awakens a member! This function does **NOT** update the cache automatically.
+	 *
+	 * You will need to run:
+	 * ```ts
+	 * client.dataMngr.cache.set(message.guild.id, newConfigData);
+	 * ```
+	 * @param memberId ID of the member that awakened.
+	 * @param configData Config data of the guild the awakening occurred in.
+	 * @return Modified `configData` (with member added to `awakenedUsers` map, and `modified` to `true`).
+	 */
+	public awaken(memberId: string, configData: ConfigData): ConfigData {
+		const mana = this.rollMana(configData.manaRange.min, configData.manaRange.max);
+		configData.awakenedUsers.set(memberId, mana);
+		configData.modified = true;
 
-	public async forceAwaken(): Promise<void> { } // I guess the force awakens? 😏
+		return configData;
+	}
 
 	/**
 	 * Force sets the rank of a member, awakened or not.

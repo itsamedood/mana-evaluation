@@ -30,7 +30,7 @@ class ClientReadyEvent extends Event {
 		await client.dataMngr.cache.cacheAllEntries(entries);
 		console.log(`🗳️ Cached entries!`);
 
-    console.log(`🏁 Finished! Logged in as ${client.user?.username}!`);
+    console.log(`${client.debug ? '🪲' : '🏁'} Finished! Logged in as ${client.user?.username}!`);
   }
 }
 

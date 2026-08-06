@@ -16,9 +16,9 @@ class MessageCreateEvent extends Event {
 
   public async execute(client: Bot, message: Message) {
     if (message.member?.user.bot) return;
-		if (!message.guild?.id || !message.member?.id) return;
+		if (!message.guildId || !message.member?.id) return;
 
-		const configData = client.dataMngr.cache.get(message.guild.id);
+		const configData = client.dataMngr.cache.get(message.guildId);
 		const memberId = message.member.id;
 
 		if (!configData) return;
@@ -30,11 +30,11 @@ class MessageCreateEvent extends Event {
 			}
 
 			if (client.rankMngr.rollAwakening(configData.awakenOdds)) {
-				const mana = client.rankMngr.rollMana(configData.manaRange.min, configData.manaRange.max);
-				configData.awakenedUsers.set(memberId, mana); // Add the user and their mana to the awakened map.
-				configData.modified = true;
+				const newConfigData = client.rankMngr.awaken(memberId, configData);
+				client.dataMngr.cache.set(message.guildId, newConfigData); // Update config data.
 
-				client.dataMngr.cache.set(message.guild.id, configData); // Update config data.
+				if (message.channel.isSendable())
+					await message.channel.send({ content: client.awakenMessage(memberId) });
 			}
 
 			client.slowed.push(memberId);

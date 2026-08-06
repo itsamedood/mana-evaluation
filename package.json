@@ -10,7 +10,10 @@
     "typescript": "^5"
   },
   "scripts": {
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+		"debug": "bun run src/index.ts -debug",
+		"watch": "bun run --watch src/index.ts",
+		"dwatch": "bun run --watch src/index.ts -debug"
   },
   "dependencies": {
     "discord.js": "^14.27.0",
