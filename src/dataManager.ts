@@ -1,12 +1,13 @@
 import { DEFAULT_CONFIG_DATA } from "./types/configData";
 import { glob } from "glob";
+import path from "node:path";
 import type ConfigData from "./types/configData";
 
 /**
  * Keeps the functions related to `DataManager.cache` seperate, for cleanliness.
  */
 export class DMCacheManager extends Map<string, ConfigData> {
-	private readonly _dirPath = `${import.meta.dir}/../guilds`; // Bugged!
+	private readonly _dirPath = path.resolve(import.meta.dir, "../guilds"); // Bugged!
 
 	/**
 	 * Takes all entries in `/guilds` and stores them in `this.cache`.
@@ -16,6 +17,10 @@ export class DMCacheManager extends Map<string, ConfigData> {
 			for (const guildId of entries) {
 				const bunFile = Bun.file(`${this._dirPath}/${guildId}.json`);
 				const data: ConfigData = await bunFile.json();
+
+				// Convert raw object back into a Map.
+				if (!(data.awakenedUsers instanceof Map))
+					data.awakenedUsers = new Map<string, number>(Object.entries(data.awakenedUsers ?? {}));
 
 				this.set(guildId, data);
 				console.log(`📦 Cached ${guildId}.json!`);
@@ -102,8 +107,6 @@ export default class DataManager {
 
 	private readonly _dirPath = `${import.meta.dir}/../guilds`;
 
-	constructor() { }
-
 	/**
 	 * Fetches all entries from `/guilds` and returns an array of each entry, without the path or extension.
 	 *
@@ -111,16 +114,8 @@ export default class DataManager {
 	 */
 	public async fetchAllEntries(): Promise<string[]> {
 		const entries: string[] = [];
-		const files = await glob(`${this._dirPath}/*.json`);
 
-		for (const file of files) {
-			const guildId = file.replace(".json", '')
-				.replace("guilds/", '') // "guilds/123456.json" => "123456".
-				.replace("guilds\\", ''); // Fucking Windows bro.
-
-			entries.push(guildId);
-		}
-
+		entries.push(...(await glob(`${this._dirPath}/*.json`)).map(file => path.basename(file, ".json")));
 		return entries;
 	}
 

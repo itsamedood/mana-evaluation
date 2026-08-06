@@ -24,7 +24,10 @@ class MessageCreateEvent extends Event {
 		if (!configData) return;
 
 		if (!configData.awakenedUsers.has(memberId)) {
-			if (client.slowed.includes(memberId)) return;
+			if (client.slowed.includes(memberId)) {
+				console.log(`${memberId} is in client.slowed!`);
+				return;
+			}
 
 			if (client.rankMngr.rollAwakening(configData.awakenOdds)) {
 				const mana = client.rankMngr.rollMana(configData.manaRange.min, configData.manaRange.max);
@@ -35,6 +38,7 @@ class MessageCreateEvent extends Event {
 			}
 
 			client.slowed.push(memberId);
+			console.log(`Added ${memberId} to client.slowed!`);
 			setTimeout(() => client.removeUserFromSlowed(memberId), 3e3);
 		}
   }
