@@ -16,7 +16,7 @@ export default class Bot extends Client {
 	public readonly eventSets: Set[] = [];
   public readonly commands = new Collection<string, Command>();
   public readonly buttons = new Collection<string, Button>();
-	public readonly slowed: string[] = []; // Contains user IDs, used against spam for increased awaken odds.
+	public slowed: string[] = []; // Contains user IDs, used against spam for increased awaken odds.
 	public configCache = new Map<string, ConfigData>(); // guildId => ConfigData;
   public cmdJSONArray: CommandData[] = [];
 
@@ -25,6 +25,13 @@ export default class Bot extends Client {
   public codeBlock(text: string, lang?: string | undefined): string {
     return `\`\`\`${lang ?? `txt`}\n${text}\n\`\`\``;
   }
+
+	public async removeUserFromSlowed(userId: string): Promise<void> {
+		const index = this.slowed.indexOf(userId);
+		if (index >= 0) this.slowed.splice(index);
+
+		console.log(`⚠️ Removed ${userId} from this.slowed!`);
+	}
 
 	/**
 	 * Goes through all guilds this client is in, and checks they have an entry in `/guilds`.

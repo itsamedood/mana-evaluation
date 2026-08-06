@@ -35,6 +35,7 @@ class MessageCreateEvent extends Event {
 			}
 
 			client.slowed.push(memberId);
+			setTimeout(() => client.removeUserFromSlowed(memberId), 3e3);
 		}
   }
 }

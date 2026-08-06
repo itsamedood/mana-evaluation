@@ -6,7 +6,7 @@ import type ConfigData from "./types/configData";
  * Keeps the functions related to `DataManager.cache` seperate, for cleanliness.
  */
 export class DMCacheManager extends Map<string, ConfigData> {
-	private readonly _dirPath = `${import.meta.dir}/../guilds`;
+	private readonly _dirPath = `${import.meta.dir}/../guilds`; // Bugged!
 
 	/**
 	 * Takes all entries in `/guilds` and stores them in `this.cache`.
