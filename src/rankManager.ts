@@ -29,7 +29,7 @@ export default class RankManager {
 		return member.roles.cache.find(r => this.roleNames.includes(r.name));
 	}
 
-	public async setRankByMana(mana: number, ranks: {
+	public setRankByMana(mana: number, ranks: {
 		e: { minMana: number; }
 		d: { minMana: number; }
 		c: { minMana: number; }
@@ -37,8 +37,16 @@ export default class RankManager {
 		a: { minMana: number; }
 		s: { minMana: number; }
 		n: { minMana: number; }
-	}, maxNationalLevels: number): Promise<void> {
-		//
+	}, maxNationalLevels: number): string | undefined {
+		// This code fucking suuuuuucks.
+		if (mana <= ranks.e.minMana) return this.roleNames[0];
+		else if (mana <= ranks.d.minMana) return this.roleNames[1];
+		else if (mana <= ranks.c.minMana) return this.roleNames[2];
+		else if (mana <= ranks.b.minMana) return this.roleNames[3];
+		else if (mana <= ranks.a.minMana) return this.roleNames[4];
+		else if (mana <= ranks.s.minMana) return this.roleNames[5];
+		else if (mana <= ranks.n.minMana && maxNationalLevels > 0) return this.roleNames[6];
+		// ☝️ Later check that we won't exceed the max national levels either.
 	}
 
 	/**
