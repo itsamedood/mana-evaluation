@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import Bot from "../../bot";
 import Command, { OptionType } from "../../types/command";
+import messageCreate from "../../events/messageCreate";
 
 class AwakenCommand extends Command {
 	constructor() {
@@ -31,6 +32,9 @@ class AwakenCommand extends Command {
 
 		const newConfigData = client.rankMngr.awaken(member.id, configData);
 		client.dataMngr.cache.set(interaction.guildId, newConfigData);
+
+		if (interaction.channel?.isSendable())
+			await interaction.channel.send({ content: client.awakenMessage(user.id) });
 	}
 }
 

@@ -2,12 +2,12 @@ import { ChatInputCommandInteraction } from "discord.js";
 import Bot from "../../bot";
 import Command from "../../types/command";
 
-class AboutCommand extends Command {
+class LeaderboardCommand extends Command {
 	constructor() {
 		super({
 			data: {
-				name: "about",
-				description: "Tells you about me!"
+				name: "leaderboard",
+				description: "Shows the leaderboard by mana!"
 			},
 			category: "FUN"
 		});
@@ -19,5 +19,5 @@ class AboutCommand extends Command {
 }
 
 export default {
-	name: new AboutCommand()
+	name: new LeaderboardCommand()
 }

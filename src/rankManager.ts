@@ -38,21 +38,28 @@ export default class RankManager {
 		s: { minMana: number; }
 		n: { minMana: number; }
 	}, maxNationalLevels: number): string | undefined {
-		// This code fucking suuuuuucks.
-		if (mana <= ranks.e.minMana) return this.roleNames[0];
-		else if (mana <= ranks.d.minMana) return this.roleNames[1];
-		else if (mana <= ranks.c.minMana) return this.roleNames[2];
-		else if (mana <= ranks.b.minMana) return this.roleNames[3];
-		else if (mana <= ranks.a.minMana) return this.roleNames[4];
-		else if (mana <= ranks.s.minMana) return this.roleNames[5];
-		else if (mana <= ranks.n.minMana && maxNationalLevels > 0) return this.roleNames[6];
-		// ☝️ Later check that we won't exceed the max national levels either.
+		// This code REALLY fucking suuuuuucks.
+		let [e, d, c, b, a, s, n]: Array<string | undefined> = this.roleNames;
+
+		if (mana >= ranks.n.minMana && maxNationalLevels > 0) {
+			// Account for maxNationalLevels and such here.
+			// For now fuck it.
+			// Also my wifey is getting her nails done and the file is so fucking annoying send help.
+
+			return n;
+		}
+		if (mana >= ranks.s.minMana) return s;
+		if (mana >= ranks.a.minMana) return a;
+		if (mana >= ranks.b.minMana) return b;
+		if (mana >= ranks.c.minMana) return c;
+		if (mana >= ranks.d.minMana) return d;
+		if (mana >= ranks.e.minMana || mana < ranks.e.minMana) return e; // Just in case.
 	}
 
 	/**
 	 * Awakens a member! This function does **NOT** update the cache automatically.
 	 *
-	 * You will need to run:
+	 * You will need to call:
 	 * ```ts
 	 * client.dataMngr.cache.set(message.guild.id, newConfigData);
 	 * ```
